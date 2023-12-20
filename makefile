@@ -2,7 +2,7 @@ parametrosCompilacao=-Wall -std=c++20
 parametrosBoost =
 gg=gg
 
-OBJ = main.o Game.o
+OBJ = main.o Game.o UserInterface.o
 
 all: $(gg)
 
@@ -14,6 +14,9 @@ main.o: main.cpp
 
 Game.o: Game.cpp Game.hpp
 	g++ -c Game.cpp $(parametrosCompilacao)
+
+UserInterface.o: UserInterface.cpp UserInterface.hpp
+	g++ -c UserInterface.cpp $(parametrosCompilacao)
 
 run:
 	./$(gg)
