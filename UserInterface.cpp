@@ -8,13 +8,9 @@ const std::string UserInterface::white = "\033[1;37m";
 const std::string UserInterface::lightGray = "\033[38:5:8m";
 const std::string UserInterface::green = "\033[1;32m";
 const std::string UserInterface::yellow = "\033[1;33m";
+const std::string UserInterface::orange = "\033[38:5:166m";
 
-UserInterface::UserInterface()
-    : state{0},
-      menuState{0},
-      boxEmpty{"│                         │"},
-      boxLid{"┌─────────────────────────┐"},
-      boxBottom{"└─────────────────────────┘"} {
+UserInterface::UserInterface() : state{0}, menuState{0}, invalidOpt{false} {
     // get window size
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
@@ -24,12 +20,9 @@ UserInterface::UserInterface()
     // calculate left padding
     this->leftPadding = (winWidth / 2) - (this->boxWidth / 2);
 
-    this->menuString = {
-        "                         ", "                         ",
-        "         P L A Y         ", "     S E T T I N G S     ",
-        "   S T A T I S T I C S   ", "         Q U I T         ",
-        "                         ", "                         ",
-    };
+    boxEmpty = "│                         │";
+    boxLid = "┌─────────────────────────┐";
+    boxBottom = "└─────────────────────────┘";
 }
 
 void UserInterface::printLeftPadding() {
@@ -45,23 +38,76 @@ void UserInterface::printMenu() {
     printEndLine(verticalPadding);
 
     printLeftPadding();
-    std::cout << this->white << boxLid << std::endl;
-    for (unsigned short i = 0; i < this->menuString.size(); ++i) {
+    std::cout << this->green << "            Z A" << std::endl;
+    printLeftPadding();
+    std::cout << this->yellow << "        W O R D L E" << std::endl;
+
+    printLeftPadding();
+    std::cout << this->lightGray << boxLid << std::endl;
+    printLeftPadding();
+    std::cout << this->boxEmpty << std::endl;
+
+    printLeftPadding();
+    std::cout << "│         options:        │" << std::endl;
+    printLeftPadding();
+    std::cout << this->boxEmpty << std::endl;
+    printLeftPadding();
+    std::cout << this->lightGray << "│" << this->white << "   p        "
+              << this->lightGray << "      Play   │" << std::endl;
+    printLeftPadding();
+    std::cout << this->lightGray << "│" << this->white << "   s        "
+              << this->lightGray << "  Settings   │" << std::endl;
+    printLeftPadding();
+    std::cout << this->lightGray << "│" << this->white << "   t        "
+              << this->lightGray << "Statistics   │" << std::endl;
+    printLeftPadding();
+    std::cout << this->lightGray << "│" << this->white << "   h        "
+              << this->lightGray << "      Help   │" << std::endl;
+    printLeftPadding();
+    std::cout << this->lightGray << "│" << this->white << "   q        "
+              << this->lightGray << "      Quit   │" << std::endl;
+
+    for (unsigned short i = 0; i < 3; ++i) {
         printLeftPadding();
-        if (this->menuState + 2 == i) {
-            std::cout << "│" << menuString[i] << "│" << std::endl;
+        if (i == 1 && this->invalidOpt == true) {
+            std::cout << "│    invalid option!      │" << std::endl;
         } else {
-            std::cout << "│" << this->lightGray << menuString[i] << this->white
-                      << "│" << std::endl;
+            std::cout << this->boxEmpty << std::endl;
         }
     }
+
     printLeftPadding();
     std::cout << boxBottom << std::endl;
 
     printLeftPadding();
-    std::cout << this->white << "wasd  " << this->lightGray << "move"
-              << this->white << "   #  <─┘" << this->lightGray << " Confirm";
-    printEndLine(verticalPadding - 2);
+    std::cout << this->white << "enter" << this->lightGray
+              << "     to submit option" << std::endl;
+
+    printEndLine(verticalPadding);
+}
+
+void UserInterface::readInput() {
+    std::string buffer;
+    std::cin >> buffer;
+
+    if (buffer.size() > 1) {
+        invalidOpt = true;
+        return;
+    }
+
+    if (buffer == "p") {
+        this->state = 1;
+    } else if (buffer == "s") {
+        this->state = 2;
+    } else if (buffer == "t") {
+        this->state = 3;
+    } else if (buffer == "h") {
+        this->state = 4;
+    } else if (buffer == "q") {
+        this->state = 5;
+    }
+
+    return;
 }
 
 void UserInterface::printScreen() {
